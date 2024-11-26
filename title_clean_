@@ -1,0 +1,73 @@
+import os
+import shutil
+
+def process_line(lines, index):
+    """
+    处理当前行，如果是连续的 '-' 或 '=' 组成的行，则将其删除，
+    并在其上一行开头添加 '## '。
+    """
+    if index > 0 and (lines[index].strip().startswith('-') or lines[index].strip().startswith('=')):
+        # 检查当前行是否是连续的 '-' 或 '='
+        line_content = lines[index].strip()
+        if len(line_content) > 3 and all(c == line_content[0] for c in line_content):
+            # 修改上一行，添加 '## ' 标题前缀
+            lines[index - 1] = "## " + lines[index - 1]
+            # 删除当前行
+            return True
+    return False
+
+def process_md_file(file_path, output_base_folder, relative_path):
+    """
+    处理单个 Markdown 文件，删除符合条件的行并修改标题。
+    将处理后的文件保存到新的输出文件夹中。
+    """
+    with open(file_path, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    
+    modified_lines = []
+    i = 0
+    while i < len(lines):
+        if process_line(lines, i):
+            i += 1  # 跳过删除行后的检查
+        else:
+            modified_lines.append(lines[i])
+            i += 1
+
+    # 构造输出文件路径
+    output_file_path = os.path.join(output_base_folder, relative_path)
+    os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+
+    # 写入到新文件夹中
+    with open(output_file_path, "w", encoding="utf-8") as file:
+        file.writelines(modified_lines)
+
+def process_folder(input_folder, output_folder):
+    """
+    遍历文件夹及其子文件夹中的所有文件，处理每个 Markdown 文件，
+    并将处理后的文件保存到新的文件夹中，保持原有结构。
+    """
+    for root, _, files in os.walk(input_folder):
+        for file_name in files:
+            if file_name.endswith(".md"):  # 只处理 Markdown 文件
+                file_path = os.path.join(root, file_name)
+                # 计算相对路径
+                relative_path = os.path.relpath(file_path, input_folder)
+                try:
+                    process_md_file(file_path, output_folder, relative_path)
+                    print(f"Processed file: {file_path}")
+                except Exception as e:
+                    print(f"Error processing file {file_path}: {e}")
+            else:
+                # 如果需要保留非Markdown文件，直接复制
+                file_path = os.path.join(root, file_name)
+                relative_path = os.path.relpath(file_path, input_folder)
+                target_path = os.path.join(output_folder, relative_path)
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                shutil.copy(file_path, target_path)
+
+# 使用方法
+if __name__ == "__main__":
+    # 设置源文件夹和目标文件夹的绝对路径
+    input_folder = r"C:\absolute\path\to\input\folder"  # 替换为实际输入文件夹路径
+    output_folder = r"C:\absolute\path\to\output\folder"  # 替换为实际输出文件夹路径
+    process_folder(input_folder, output_folder)
