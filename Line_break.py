@@ -22,6 +22,7 @@ def process_file(file_path):
     # 将修改后的内容写回文件
     with open(file_path, "w", encoding="utf-8") as file:
         file.writelines(modified_lines)
+hsn-proj-osJ8ofOtmwtii7PqJBrJvOPX3MhyWucntja2LHxYXBYnpX1Q8Lt-eomKbOAjYXWvui7qTkOiJ6T3BlbkFJpvh1wff5-5SnG8Mi6jyqA31zlLZ4_hrXcMYEIVabZ8uvB3N773tsz78EGXE6NabacMh8k5AR8A
 
 def process_folder(folder_path):
     """
@@ -41,3 +42,5 @@ if __name__ == "__main__":
     # 直接设置需要处理的文件夹绝对路径
     folder_path = r"C:\absolute\path\to\your\folder"  # 将此路径修改为实际路径
     process_folder(folder_path)
+
+
